@@ -14,4 +14,22 @@ router.post('/register', async function(req, res){
     res.send(client);
 })
 
+router.post('/login', async function(req, res) {
+    const { email, password } = req.body;
+
+    const client = await controller.findClientByEmail(email);
+
+    const goodPassword = await controller.comparePassword(password, client.password);
+
+    if (goodPassword){
+        const token = await controller.createToken({email: client.email, password: client.password, 
+            favorite_movie_genre: client.favorite_movie_genre});
+        res.status(200)
+        res.send(token);
+    }
+    else {
+        res.status(401).send({ error: 'Invalid Email or Password' });
+    }
+})
+
 module.exports = router
