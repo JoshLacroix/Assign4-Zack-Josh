@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Client = require('./clientschema');
+const Movie = require('./movieschema')
 
 async function createToken(payload){
     const token = await jwt.sign(payload, process.env.JWT_SECRET);
@@ -20,6 +21,7 @@ async function verify_token(token){
     catch(err) {
         console.log('Bad token');
         console.log(err);
+        return null
     } 
 }
 
@@ -43,6 +45,12 @@ async function createClient(clientInfo){
     await newClient.save()
 }
 
+async function findMoviesByGenre(genre){
+    const movie = await Movie.find({genre:genre})
+
+    return movie
+}
+
 async function findClientByEmail(email){
     const client = await Client.findOne({ email: email})
 
@@ -50,5 +58,5 @@ async function findClientByEmail(email){
 }
 
 module.exports = {
-    createToken,  decode_token, verify_token, hashPassword, comparePassword, createClient, findClientByEmail
+    createToken,  decode_token, verify_token, hashPassword, comparePassword, createClient, findClientByEmail,findMoviesByGenre
 }

@@ -32,4 +32,36 @@ router.post('/login', async function(req, res) {
     }
 })
 
+router.get('/movies', async function(req, res) {
+    //token in authorization header
+    const token = req.headers.authorization
+
+    if (!token) {
+        return res.status(401).send({ error: 'Missing token' });
+    }
+
+    const verify = await controller.verify_token(token)
+
+    const genre = verify.favorite_movie_genre
+    
+    const movies = await controller.findMoviesByGenre(genre)
+    console.log(' movies: ',  movies);
+   
+
+
+    res.send('yes')
+})
+
+async function verify_token(token){
+    try{
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+        return decoded
+    }
+    catch(err) {
+        console.log('Bad token');
+        console.log(err);
+        return null
+    } 
+}
+
 module.exports = router
