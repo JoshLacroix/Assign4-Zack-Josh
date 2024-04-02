@@ -53,8 +53,7 @@ async function createClient(clientInfo){
 
 
 async function findMoviesByGenre(genre){
-    const movie = await Movie.find({genre:genre})
-
+    const movie = await Movie.find({ genres: { $in: genre } }).limit(25)
     return movie
 }
 
