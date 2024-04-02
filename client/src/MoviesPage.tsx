@@ -3,6 +3,7 @@ import './MoviesPage.css';
 const MoviesPage = () => {  
     const handleLogout = () => {
       console.log('Logging out...');
+      window.location.href = '/';
     };
 
   const favoriteGenre = 'Drama';
