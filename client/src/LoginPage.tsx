@@ -1,23 +1,50 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './LoginPage.css'; // Import CSS for styling
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './LoginPage.css';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Implement your login logic here
-    console.log('Logging in with:', { username, password });
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:8080/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const token = await response.text();
+        console.log('Login successful. Token:', token);
+        window.location.href = '/movies';
+      } else {
+        console.error('Login failed');
+        const errorData = await response.json();
+        toast.error('The email or password is wrong')
+        console.error('Error:', errorData.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('The email or password is wrong')
+    }
+
+    console.log('Logging in with:', { email, password });
   };
 
   return (
     <div className="login-container">
-      <h2 className="login-title">Login</h2> {/* Login text placed outside the form */}
+      <h2 className="login-title">Login</h2>
       <form className="login-form" onSubmit={handleLogin}>
         <div className="form-group">
-          <label htmlFor="username">Username:</label>
-          <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <label htmlFor="email">Email:</label>
+          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
@@ -25,7 +52,7 @@ const LoginPage = () => {
         </div>
         <button type="submit" className="login-button">Login</button>
       </form>
-      <Link to="/register" className="register-link">Register here</Link> {/* Link to the registration page */}
+      <Link to="/register" className="register-link">Register here</Link>
     </div>
   );
 };

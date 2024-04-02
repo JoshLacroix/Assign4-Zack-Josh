@@ -40,10 +40,17 @@ async function comparePassword(password, hashPassword){
 }
 
 async function createClient(clientInfo){
-    const newClient = new Client(clientInfo)
+    const { password, ...rest } = clientInfo;
+    const hashedPassword = await hashPassword(password);
 
-    await newClient.save()
+    const newClient = new Client({
+        ...rest,
+        password: hashedPassword
+    });
+
+    await newClient.save();
 }
+
 
 async function findMoviesByGenre(genre){
     const movie = await Movie.find({genre:genre})
@@ -57,6 +64,28 @@ async function findClientByEmail(email){
     return client;
 }
 
+async function login(email, password) {
+    try {
+        const client = await Client.findOne({ email });
+  
+        if (!client) {
+            throw new Error('Invalid Email or Password');
+        }
+  
+        const passwordMatch = await comparePassword(password, client.password);
+  
+        if (!passwordMatch) {
+            throw new Error('Invalid Email or Password');
+        }
+  
+        const token = createToken({ email: client.email });
+        return token;
+    } catch (error) {
+        throw new Error('Login failed');
+    }
+}
+
+
 module.exports = {
-    createToken,  decode_token, verify_token, hashPassword, comparePassword, createClient, findClientByEmail,findMoviesByGenre
+    createToken,  decode_token, verify_token, hashPassword, comparePassword, createClient, findClientByEmail,findMoviesByGenre, login
 }
