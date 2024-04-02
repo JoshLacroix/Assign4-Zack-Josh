@@ -31,10 +31,9 @@ const RegisterPage: React.FC = () => {
     setTermsAgreed(event.target.checked);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Validation
     if (!email || !password || !confirmPassword || !genre || !termsAgreed) {
       toast.error('All fields are required');
       return;
@@ -55,14 +54,38 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    // Success
-    toast.success('Registration successful');
-    // Reset form fields
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setGenre('');
-    setTermsAgreed(false);
+    try {
+      const response = await fetch('http://localhost:8080/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          confirm_password: confirmPassword,
+          favorite_movie_genre: genre,
+          terms_and_condition: termsAgreed
+        }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data); 
+        toast.success('Registration successful');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setGenre('');
+        setTermsAgreed(false);
+        window.location.href = '/';
+      } else {
+        toast.error('Registration failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Registration failed');
+    }
   };
 
   return (
@@ -103,7 +126,7 @@ const RegisterPage: React.FC = () => {
         </div>
         <button type="submit" className="register-button">Register</button>
       </form>
-      <Link to="/" className="back-to-login">I already have an account</Link> {/* Link to the login page */}
+      <Link to="/" className="back-to-login">I already have an account</Link>
       <ToastContainer />
     </div>
   );

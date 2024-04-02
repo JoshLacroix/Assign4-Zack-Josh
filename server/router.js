@@ -1,39 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('./controller');
+const Client = require('./clientschema');
 
 router.post('/register', async function(req, res){
-    const newClient = req.body
-    console.log(newClient);
+    const { email, password, confirm_password, favorite_movie_genre, terms_and_condition } = req.body;
 
-    newClient.password = await controller.hashPassword(newClient.password);
+    try {
 
-    const client = controller.createClient(newClient)
+        const hashedPassword = await controller.hashPassword(password);
 
-    res.status(200);
-    res.send(client);
-})
+        const newClient = new Client({
+            email,
+            password: hashedPassword,
+            confirm_password: hashedPassword,
+            favorite_movie_genre,
+            terms_and_condition
+        });
+
+        await newClient.save();
+
+        res.status(200).json({ message: 'Registration successful' });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Registration failed' });
+    }
+});
 
 router.post('/login', async function(req, res) {
     const { email, password } = req.body;
 
-    const client = await controller.findClientByEmail(email);
+    try {
+        const client = await controller.findClientByEmail(email);
 
-    const goodPassword = await controller.comparePassword(password, client.password);
+        if (!client) {
+            return res.status(401).json({ error: 'Invalid Email or Password' });
+        }
 
-    if (goodPassword){
-        const token = await controller.createToken({email: client.email, password: client.password, 
-            favorite_movie_genre: client.favorite_movie_genre});
-        res.status(200)
-        res.send(token);
+        const passwordMatch = await controller.comparePassword(password, client.password);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid Email or Password' });
+        }
+
+        const token = await controller.createToken({
+            email: client.email,
+            favorite_movie_genre: client.favorite_movie_genre
+        });
+
+        res.status(200).json({ token });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Login failed' });
     }
-    else {
-        res.status(401).send({ error: 'Invalid Email or Password' });
-    }
-})
+});
+
 
 router.get('/movies', async function(req, res) {
-    //token in authorization header
     const token = req.headers.authorization
 
     if (!token) {
