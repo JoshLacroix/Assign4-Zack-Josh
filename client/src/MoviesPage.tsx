@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "./MoviesPage.css"
 
 interface Movie {
@@ -23,18 +24,12 @@ const MoviePage = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:8080/movies', {
+        const response = await axios.get('http://localhost:8080/movies', {
           headers: {
             Authorization: token,
           },
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch movies');
-        }
-
-        const data = await response.json();
-        setMovies(data || []);
+        setMovies(response.data || []);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching movies:', error);
