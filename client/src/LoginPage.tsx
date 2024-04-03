@@ -21,8 +21,10 @@ const LoginPage = () => {
       });
 
       if (response.ok) {
-        const token = await response.text();
+        const data = await response.json();
+        const token = data.token;
         console.log('Login successful. Token:', token);
+        localStorage.setItem('token', token);
         window.location.href = '/movies';
       } else {
         console.error('Login failed');
