@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { ToastContainer,toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './LoginPage.css';
 
@@ -55,6 +55,7 @@ const LoginPage = () => {
         <button type="submit" className="login-button">Login</button>
       </form>
       <Link to="/register" className="register-link">Register here</Link>
+      <ToastContainer />
     </div>
   );
 };

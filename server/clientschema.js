@@ -16,7 +16,7 @@ const ClientSchema = new mongoose.Schema({
     },
     favorite_movie_genre: {
         type: String,
-        enum: ['Drama','Comedy','Action','Sci-fi','Animation','History','Horror','Romance'],
+        enum: ['Drama','Comedy','Action','Sci-Fi','Animation','History','Horror','Romance'],
         required: true
     },
     terms_and_condition: {
