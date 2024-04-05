@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import "./MoviesPage.css"
 
 interface Movie {
@@ -23,7 +23,7 @@ const MoviePage = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:8080/movies', {
+        const response = await fetch('http://localhost:8080/api/movies', {
           headers: {
             Authorization: token,
           },
